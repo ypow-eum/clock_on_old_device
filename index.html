@@ -161,7 +161,7 @@
 
             // 매시 30분 0초 ~ 29초 동안 메시지 표시
             var messageDiv = document.getElementById('specialMessage');
-            if (minutes === 30 && seconds < 30) {
+            if (minutes % 10 === 0) {
                 messageDiv.style.display = 'block';
             } else {
                 messageDiv.style.display = 'none';
@@ -169,10 +169,6 @@
         }
 
         function updateAQI() {
-            var aqiDiv = document.getElementById('aqiDisplay');
-            var forecastDiv = document.getElementById('forecastDisplay');
-            var forecastTomorrowDiv = document.getElementById('forecastTomorrowDisplay');
-
             var token = 'c1611aa54ac7de2320cc3105b7b42a0ba2b26447';
             // 'here'는 IP 기반으로 현재 위치를 자동으로 찾습니다.
             var url = 'https://api.waqi.info/feed/here/?token=' + token;
@@ -190,14 +186,12 @@
                             if (aqi > 100) statusText = '나쁨';
                             if (aqi > 150) statusText = '매우나쁨';
                             
-                            aqiDiv.innerHTML = 'PM 2.5: ' + aqi + ' (' + statusText + ')';
+                            document.getElementById('aqiDisplay').innerHTML = 'PM 2.5: ' + aqi + ' (' + statusText + ')';
 
                             // 오늘 예보 (최저/최고) 가져오기
                             if (response.data.forecast && response.data.forecast.daily && response.data.forecast.daily.pm25) {
                                 var forecasts = response.data.forecast.daily.pm25;
                                 var now = new Date();
-                                
-                                // 오늘 날짜
                                 var year = now.getFullYear();
                                 var month = now.getMonth() + 1;
                                 var day = now.getDate();
@@ -205,8 +199,8 @@
                                 if (day < 10) day = '0' + day;
                                 var todayStr = year + '-' + month + '-' + day;
 
-                                // 내일 날짜 (밀리초 계산이 구형 브라우저에서 더 안전함)
-                                var tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                                var tomorrow = new Date(now);
+                                tomorrow.setDate(tomorrow.getDate() + 1);
                                 var tYear = tomorrow.getFullYear();
                                 var tMonth = tomorrow.getMonth() + 1;
                                 var tDay = tomorrow.getDate();
@@ -216,22 +210,17 @@
 
                                 for (var i = 0; i < forecasts.length; i++) {
                                     if (forecasts[i].day === todayStr) {
-                                        forecastDiv.innerHTML = '오늘: 최저 [' + forecasts[i].min + '] 최고 [' + forecasts[i].max + ']';
+                                        document.getElementById('forecastDisplay').innerHTML = '오늘: 최저 [' + forecasts[i].min + '] 최고 [' + forecasts[i].max + ']';
                                     }
                                     if (forecasts[i].day === tomorrowStr) {
-                                        forecastTomorrowDiv.innerHTML = '내일: 최저 [' + forecasts[i].min + '] 최고 [' + forecasts[i].max + ']';
+                                        document.getElementById('forecastTomorrowDisplay').innerHTML = '내일: 최저 [' + forecasts[i].min + '] 최고 [' + forecasts[i].max + ']';
                                     }
                                 }
                             }
-                        } else {
-                            aqiDiv.innerHTML = '데이터 없음';
                         }
                     } catch (e) {
-                        aqiDiv.innerHTML = '데이터 오류';
+                        console.log('AQI Error');
                     }
-                } else if (xhr.readyState === 4) {
-                    // 통신 실패 시 에러 코드 표시 (0이면 보안/네트워크 차단 가능성 높음)
-                    aqiDiv.innerHTML = '연결 실패 (' + xhr.status + ')';
                 }
             };
             xhr.send();
