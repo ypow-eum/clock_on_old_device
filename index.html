@@ -12,7 +12,6 @@
             /* 세로 중앙 정렬을 위한 핵(hack) */
             height: 1200px;
             text-align: center;
-            font-family: 'Impact', 'Arial Narrow', sans-serif; /* 좁고 굵은 폰트 우선 */
         }
 
         html {
@@ -55,7 +54,6 @@
             color: #ffffff;
             font-size: 40px;
             font-weight: bold;
-            font-family: 'Malgun Gothic', 'Dotum', sans-serif; /* 한글은 고딕 계열 */
             margin-bottom: 10px;
             display: block;
         }
@@ -64,7 +62,6 @@
             color: #ffffff;
             font-size: 40px;
             font-weight: bold;
-            font-family: sans-serif;
             display: block;
         }
 
@@ -87,7 +84,6 @@
             display: none; /* 기본 숨김 */
             font-size: 80px;
             color: #ff69b4; /* 핑크색 포인트 */
-            font-family: 'Malgun Gothic', 'Dotum', sans-serif;
             margin-top: 20px;
         }
     </style>
@@ -100,7 +96,7 @@
             
             <div class="info-box">
                 <div class="date-text" id="dateDisplay">16일 (월)</div>
-                <div class="temp-text">1°C</div>
+                <div class="temp-text" id="secondsDisplay">00초</div>
             </div>
             <div id="specialMessage" class="special-message">윤은솔 예쁜이</div>
         </div>
@@ -115,10 +111,15 @@
             var hours = now.getHours();
             var minutes = now.getMinutes();
             var seconds = now.getSeconds();
+
+            // 매 초마다 색상 변경 (밝은 색 계열)
+            var colors = ['#FF80AB', '#EA80FC', '#8C9EFF', '#80D8FF', '#A7FFEB', '#CCFF90', '#FFFF8D', '#FFD180'];
+            document.getElementById('timeDisplay').style.color = colors[seconds % colors.length];
             
             // 2자리 숫자로 맞추기 (예: 9 -> 09)
             hours = hours < 10 ? '0' + hours : hours;
             minutes = minutes < 10 ? '0' + minutes : minutes;
+            var strSeconds = seconds < 10 ? '0' + seconds : seconds;
             
             // 시간 표시 업데이트
             var timeString = hours + '<span class="blink">:</span>' + minutes;
@@ -134,6 +135,9 @@
             // 색상 강조를 위해 괄호 안 요일은 별도 스타일링 가능하나 이미지대로 흰색 유지
             var dateString = date + '일 (' + dayName + ')';
             document.getElementById('dateDisplay').innerHTML = dateString;
+            
+            // 초 표시 업데이트
+            document.getElementById('secondsDisplay').innerHTML = strSeconds + '';
 
             // 매시 30분 0초 ~ 29초 동안 메시지 표시
             var messageDiv = document.getElementById('specialMessage');
