@@ -81,6 +81,15 @@
         @-webkit-keyframes blinker {
             50% { opacity: 0; }
         }
+
+        /* 특별 메시지 스타일 */
+        .special-message {
+            display: none; /* 기본 숨김 */
+            font-size: 80px;
+            color: #ff69b4; /* 핑크색 포인트 */
+            font-family: 'Malgun Gothic', 'Dotum', sans-serif;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -93,6 +102,7 @@
                 <div class="date-text" id="dateDisplay">16일 (월)</div>
                 <div class="temp-text">1°C</div>
             </div>
+            <div id="specialMessage" class="special-message">윤은솔 예쁜이</div>
         </div>
     </div>
 
@@ -104,6 +114,7 @@
             // 시간 추출
             var hours = now.getHours();
             var minutes = now.getMinutes();
+            var seconds = now.getSeconds();
             
             // 2자리 숫자로 맞추기 (예: 9 -> 09)
             hours = hours < 10 ? '0' + hours : hours;
@@ -123,6 +134,14 @@
             // 색상 강조를 위해 괄호 안 요일은 별도 스타일링 가능하나 이미지대로 흰색 유지
             var dateString = date + '일 (' + dayName + ')';
             document.getElementById('dateDisplay').innerHTML = dateString;
+
+            // 매시 30분 0초 ~ 29초 동안 메시지 표시
+            var messageDiv = document.getElementById('specialMessage');
+            if (minutes === 30 && seconds < 30) {
+                messageDiv.style.display = 'block';
+            } else {
+                messageDiv.style.display = 'none';
+            }
         }
 
         // 1초마다 실행
