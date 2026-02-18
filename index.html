@@ -40,6 +40,7 @@
             letter-spacing: -5px; /* 자간을 좁게 */
             vertical-align: top;
             margin-right: 20px;
+            font-weight: 900;
         }
 
         /* 날짜 및 온도 영역 (오른쪽 정보) */
@@ -63,6 +64,22 @@
             font-size: 40px;
             font-weight: bold;
             display: block;
+        }
+
+        .aqi-text {
+            color: #ffffff;
+            font-size: 30px;
+            font-weight: bold;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .forecast-text {
+            color: #dddddd;
+            font-size: 20px;
+            font-weight: normal;
+            display: block;
+            margin-top: 5px;
         }
 
         /* 깜빡이는 콜론 효과 */
@@ -97,6 +114,9 @@
             <div class="info-box">
                 <div class="date-text" id="dateDisplay">16일 (월)</div>
                 <div class="temp-text" id="secondsDisplay">00초</div>
+                <div class="aqi-text" id="aqiDisplay"></div>
+                <div class="forecast-text" id="forecastDisplay"></div>
+                <div class="forecast-text" id="forecastTomorrowDisplay"></div>
             </div>
             <div id="specialMessage" class="special-message">윤은솔 예쁜이</div>
         </div>
@@ -148,11 +168,72 @@
             }
         }
 
+        function updateAQI() {
+            var token = 'c1611aa54ac7de2320cc3105b7b42a0ba2b26447';
+            // 'here'는 IP 기반으로 현재 위치를 자동으로 찾습니다.
+            var url = 'https://api.waqi.info/feed/here/?token=' + token;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url, true);
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.status === 'ok') {
+                            var aqi = response.data.aqi;
+                            var statusText = '좋음';
+                            if (aqi > 50) statusText = '보통';
+                            if (aqi > 100) statusText = '나쁨';
+                            if (aqi > 150) statusText = '매우나쁨';
+                            
+                            document.getElementById('aqiDisplay').innerHTML = 'PM 2.5: ' + aqi + ' (' + statusText + ')';
+
+                            // 오늘 예보 (최저/최고) 가져오기
+                            if (response.data.forecast && response.data.forecast.daily && response.data.forecast.daily.pm25) {
+                                var forecasts = response.data.forecast.daily.pm25;
+                                var now = new Date();
+                                var year = now.getFullYear();
+                                var month = now.getMonth() + 1;
+                                var day = now.getDate();
+                                if (month < 10) month = '0' + month;
+                                if (day < 10) day = '0' + day;
+                                var todayStr = year + '-' + month + '-' + day;
+
+                                var tomorrow = new Date(now);
+                                tomorrow.setDate(tomorrow.getDate() + 1);
+                                var tYear = tomorrow.getFullYear();
+                                var tMonth = tomorrow.getMonth() + 1;
+                                var tDay = tomorrow.getDate();
+                                if (tMonth < 10) tMonth = '0' + tMonth;
+                                if (tDay < 10) tDay = '0' + tDay;
+                                var tomorrowStr = tYear + '-' + tMonth + '-' + tDay;
+
+                                for (var i = 0; i < forecasts.length; i++) {
+                                    if (forecasts[i].day === todayStr) {
+                                        document.getElementById('forecastDisplay').innerHTML = '오늘: 최저 [' + forecasts[i].min + '] 최고 [' + forecasts[i].max + ']';
+                                    }
+                                    if (forecasts[i].day === tomorrowStr) {
+                                        document.getElementById('forecastTomorrowDisplay').innerHTML = '내일: 최저 [' + forecasts[i].min + '] 최고 [' + forecasts[i].max + ']';
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        console.log('AQI Error');
+                    }
+                }
+            };
+            xhr.send();
+        }
+
         // 1초마다 실행
         setInterval(updateClock, 1000);
         
         // 페이지 로드 시 즉시 실행
         updateClock();
+        updateAQI();
+        // 30분마다 미세먼지 정보 갱신
+        setInterval(updateAQI, 1800000);
     </script>
 </body>
 </html>
