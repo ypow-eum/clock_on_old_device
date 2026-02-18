@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Digital Clock</title>
+    <style>
+        /* 기본 초기화 */
+        body {
+            background-color: #000000;
+            margin: 0;
+            padding: 0;
+            /* 세로 중앙 정렬을 위한 핵(hack) */
+            height: 100%;
+            text-align: center;
+            font-family: 'Impact', 'Arial Narrow', sans-serif; /* 좁고 굵은 폰트 우선 */
+        }
+
+        html {
+            height: 100%;
+        }
+
+        /* 중앙 컨테이너 */
+        #container {
+            height: 100%;
+            width: 100%;
+            /* 구버전 브라우저에서 수직 중앙 정렬을 위한 테이블 방식 */
+            display: table;
+        }
+
+        .center-wrapper {
+            display: table-cell;
+            vertical-align: middle;
+        }
+
+        /* 시계 영역 (파란색 큰 글씨) */
+        .clock-time {
+            display: inline-block;
+            color: #7daaf2; /* 이미지의 하늘색과 유사한 색상 */
+            font-size: 220px; /* 매우 큰 사이즈 */
+            line-height: 1;
+            letter-spacing: -5px; /* 자간을 좁게 */
+            vertical-align: top;
+            margin-right: 20px;
+        }
+
+        /* 날짜 및 온도 영역 (오른쪽 정보) */
+        .info-box {
+            display: inline-block;
+            text-align: left;
+            vertical-align: top;
+            padding-top: 20px; /* 시간 숫자 높이와 시각적 균형 맞춤 */
+        }
+
+        .date-text {
+            color: #ffffff;
+            font-size: 40px;
+            font-weight: bold;
+            font-family: 'Malgun Gothic', 'Dotum', sans-serif; /* 한글은 고딕 계열 */
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .temp-text {
+            color: #ffffff;
+            font-size: 40px;
+            font-weight: bold;
+            font-family: sans-serif;
+            display: block;
+        }
+
+        /* 깜빡이는 콜론 효과 */
+        .blink {
+            animation: blinker 1s linear infinite;
+            /* 구버전 크롬(-webkit-) 호환 */
+            -webkit-animation: blinker 1s linear infinite;
+        }
+
+        @keyframes blinker {
+            50% { opacity: 0; }
+        }
+        @-webkit-keyframes blinker {
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="container">
+        <div class="center-wrapper">
+            <div class="clock-time" id="timeDisplay">10<span class="blink">:</span>30</div>
+            
+            <div class="info-box">
+                <div class="date-text" id="dateDisplay">16일 (월)</div>
+                <div class="temp-text">1°C</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ES5 문법 사용 (구버전 호환)
+        function updateClock() {
+            var now = new Date();
+            
+            // 시간 추출
+            var hours = now.getHours();
+            var minutes = now.getMinutes();
+            
+            // 2자리 숫자로 맞추기 (예: 9 -> 09)
+            hours = hours < 10 ? '0' + hours : hours;
+            minutes = minutes < 10 ? '0' + minutes : minutes;
+            
+            // 시간 표시 업데이트
+            var timeString = hours + '<span class="blink">:</span>' + minutes;
+            document.getElementById('timeDisplay').innerHTML = timeString;
+
+            // 날짜 추출
+            var date = now.getDate();
+            var dayIndex = now.getDay();
+            var dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            var dayName = dayNames[dayIndex];
+
+            // 날짜 표시 업데이트
+            // 색상 강조를 위해 괄호 안 요일은 별도 스타일링 가능하나 이미지대로 흰색 유지
+            var dateString = date + '일 (' + dayName + ')';
+            document.getElementById('dateDisplay').innerHTML = dateString;
+        }
+
+        // 1초마다 실행
+        setInterval(updateClock, 1000);
+        
+        // 페이지 로드 시 즉시 실행
+        updateClock();
+    </script>
+</body>
+</html>
