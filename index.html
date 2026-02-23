@@ -141,9 +141,9 @@
 
       /* 특별 메시지 스타일 */
       .special-message {
-        font-size: 30px;
+        font-size: 25px;
         color: #ff69b4; /* 핑크색 포인트 */
-        margin-top: 20px;
+        margin-top: 10px;
       }
     </style>
   </head>
@@ -244,8 +244,38 @@
 
         // 매시 30분 0초 ~ 29초 동안 메시지 표시
         var messageDiv = document.getElementById("specialMessage");
+        messageDiv.style.display = "block";
         if (minutes % 10 === 0) {
-          messageDiv.style.display = "block";
+          if (minutes === 0) {
+            messageDiv.innerHTML = "윤은솔 예쁜이";
+          }
+          if (minutes === 10) {
+            messageDiv.innerHTML = "이민정 예쁜이";
+          }
+          if (minutes === 20) {
+            messageDiv.innerHTML = "윤은솔은 스플래툰 고수";
+          }
+          if (minutes === 30) {
+            messageDiv.innerHTML = "이민정은 고수를 좋아해";
+          }
+          if (minutes === 40) {
+            messageDiv.innerHTML = "윤은솔은 응가 방구 좋아해";
+          }
+          if (minutes === 50) {
+            if (messageDiv.innerHTML.indexOf("🍀") === -1) {
+              var lotto = [];
+              while (lotto.length < 6) {
+                var num = Math.floor(Math.random() * 45) + 1;
+                if (lotto.indexOf(num) === -1) {
+                  lotto.push(num);
+                }
+              }
+              lotto.sort(function (a, b) {
+                return a - b;
+              });
+              messageDiv.innerHTML = "🍀 " + lotto.join(", ");
+            }
+          }
           if (strSeconds === "00") {
             updateAQI();
           }
