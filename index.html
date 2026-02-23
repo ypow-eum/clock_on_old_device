@@ -173,6 +173,27 @@
       // 12시간제 토글 상태 변수
       var is12Hour = true;
 
+      // Wake Lock (화면 꺼짐 방지) 변수
+      var wakeLock = null;
+
+      async function requestWakeLock() {
+        if ("wakeLock" in navigator) {
+          try {
+            wakeLock = await navigator.wakeLock.request("screen");
+            console.log("Screen Wake Lock is active");
+
+            // 탭 변경 등으로 풀렸을 때 다시 요청하도록 이벤트 리스너 추가
+            document.addEventListener("visibilitychange", async function () {
+              if (wakeLock !== null && document.visibilityState === "visible") {
+                wakeLock = await navigator.wakeLock.request("screen");
+              }
+            });
+          } catch (err) {
+            console.log("Wake Lock request failed:", err.name, err.message);
+          }
+        }
+      }
+
       function toggleTimeFormat() {
         is12Hour = !is12Hour;
         updateClock(); // 즉시 업데이트 반영
@@ -368,6 +389,8 @@
       updateAQI();
       // 30분마다 미세먼지 정보 갱신
       //   setInterval(updateAQI, 1800000);
+      // 브라우저 화면 꺼짐 방지 요청 (지원되는 기기에서만 작동)
+      requestWakeLock();
     </script>
   </body>
 </html>
