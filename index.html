@@ -1,239 +1,343 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
     <title>Digital Clock</title>
     <style>
-        /* 기본 초기화 */
-        body {
-            background-color: #000000;
-            margin: 0;
-            padding: 0;
-            /* 세로 중앙 정렬을 위한 핵(hack) */
-            height: 1200px;
-            text-align: center;
-        }
+      /* 기본 초기화 */
+      body {
+        background-color: #000000;
+        margin: 0;
+        padding: 10px;
+        text-align: center;
+      }
 
-        html {
-            height: 100%;
-        }
+      html {
+        height: 100%;
+      }
 
-        /* 중앙 컨테이너 */
-        #container {
-            height: 100%;
-            width: 100%;
-            /* 구버전 브라우저에서 수직 중앙 정렬을 위한 테이블 방식 */
-            display: table;
-        }
+      /* 중앙 컨테이너 */
+      #container {
+        height: 100%;
+        width: 100%;
+        /* 구버전 브라우저에서 수직 중앙 정렬을 위한 테이블 방식 */
+        display: table;
+      }
 
-        .center-wrapper {
-            display: table-cell;
-            vertical-align: middle;
-        }
+      .center-wrapper {
+        display: table-cell;
+        vertical-align: middle;
+      }
 
-        /* 시계 영역 (파란색 큰 글씨) */
-        .clock-time {
-            display: inline-block;
-            color: #7daaf2; /* 이미지의 하늘색과 유사한 색상 */
-            font-size: 320px; /* 매우 큰 사이즈 */
-            line-height: 1;
-            letter-spacing: -5px; /* 자간을 좁게 */
-            vertical-align: top;
-            margin-right: 20px;
-            font-weight: 900;
-        }
+      /* 시계 영역 (파란색 큰 글씨) */
+      .clock-time {
+        display: inline-block;
+        font-family:
+          "Helvetica Neue", Helvetica, Arial, sans-serif; /* 폰트를 명시하여 등폭 숫자 지원 강화 */
+        font-variant-numeric: tabular-nums; /* 숫자의 좌우 너비를 동일하게 맞춤 */
+        color: #7daaf2; /* 이미지의 하늘색과 유사한 색상 */
+        font-size: 22vw; /* 넓이에 비례 */
+        font-size: min(22vw, 300px); /* 최대 300px 제한 */
+        line-height: 1;
+        letter-spacing: -0.5vw; /* 폭 비율에 맞춰 자간 지정 */
+        vertical-align: top;
+        margin-right: 2vw;
+        font-weight: 900;
+        white-space: nowrap; /* 줄바꿈 방지 */
+      }
 
-        /* 날짜 및 온도 영역 (오른쪽 정보) */
-        .info-box {
-            display: inline-block;
-            text-align: left;
-            vertical-align: top;
-            padding-top: 20px; /* 시간 숫자 높이와 시각적 균형 맞춤 */
-        }
+      /* 날짜 및 온도 영역 (오른쪽 정보) */
+      .info-box {
+        display: inline-block;
+        text-align: left;
+        vertical-align: top;
+        padding-top: 20px; /* 시간 숫자 높이와 시각적 균형 맞춤 */
+      }
 
-        .date-text {
-            color: #ffffff;
-            font-size: 40px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
-        }
+      .date-text {
+        color: #ffffff;
+        font-size: 30px;
+        font-weight: bold;
+        margin-bottom: 10px;
+        display: block;
+      }
 
-        .temp-text {
-            color: #ffffff;
-            font-size: 40px;
-            font-weight: bold;
-            display: block;
-        }
+      .temp-text {
+        color: #ffffff;
+        font-size: 40px;
+        font-weight: bold;
+        display: block;
+      }
 
-        .aqi-text {
-            color: #ffffff;
-            font-size: 30px;
-            font-weight: bold;
-            display: block;
-            margin-top: 10px;
-        }
+      .aqi-text {
+        color: #ffffff;
+        font-size: 30px;
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+      }
 
-        .forecast-text {
-            color: #dddddd;
-            font-size: 20px;
-            font-weight: normal;
-            display: block;
-            margin-top: 5px;
-        }
+      .forecast-text {
+        color: #dddddd;
+        font-size: 20px;
+        font-weight: normal;
+        display: block;
+        margin-top: 5px;
+      }
 
-        /* 깜빡이는 콜론 효과 */
-        .blink {
-            animation: blinker 1s linear infinite;
-            /* 구버전 크롬(-webkit-) 호환 */
-            -webkit-animation: blinker 1s linear infinite;
-        }
+      /* 깜빡이는 콜론 효과 (CSS 원형 점 그리기) */
+      .blink {
+        display: inline-block;
+        position: relative;
+        width: 0.25em; /* 글자 크기에 상대적으로 사이즈 결정 */
+        height: 0.8em; /* 컨테이너 높이를 충분히 확보 */
+        margin: 0 0.1em;
+        vertical-align: middle;
+        /* animation: blinker 1s linear infinite;
+        -webkit-animation: blinker 1s linear infinite; */
+      }
 
-        @keyframes blinker {
-            50% { opacity: 0; }
-        }
-        @-webkit-keyframes blinker {
-            50% { opacity: 0; }
-        }
+      /* 점프하는 현상을 막기 위해 높이를 직접 지정하지 않고 가상요소로 두 개의 동그라미를 그림 */
+      .blink::before,
+      .blink::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 15px;
+        height: 15px;
+        background-color: currentColor; /* 상위 요소의 색상 사용 */
+        border-radius: 50%; /* 완벽한 동그라미 */
+      }
 
-        /* 특별 메시지 스타일 */
-        .special-message {
-            display: none; /* 기본 숨김 */
-            font-size: 80px;
-            color: #ff69b4; /* 핑크색 포인트 */
-            margin-top: 20px;
+      .blink::before {
+        top: 10%; /* 윗 점 위치 (더 위로) */
+      }
+
+      .blink::after {
+        bottom: 30%; /* 아랫 점 위치 (더 아래로) */
+      }
+
+      @keyframes blinker {
+        50% {
+          opacity: 0;
         }
+      }
+      @-webkit-keyframes blinker {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      /* 특별 메시지 스타일 */
+      .special-message {
+        font-size: 30px;
+        color: #ff69b4; /* 핑크색 포인트 */
+        margin-top: 20px;
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div id="container">
-        <div class="center-wrapper">
-            <div class="clock-time" id="timeDisplay">10<span class="blink">:</span>30</div>
-            
-            <div class="info-box">
-                <div class="date-text" id="dateDisplay">16일 (월)</div>
-                <div class="temp-text" id="secondsDisplay">00초</div>
-                <div class="aqi-text" id="aqiDisplay"></div>
-                <div class="forecast-text" id="forecastDisplay"></div>
-                <div class="forecast-text" id="forecastTomorrowDisplay"></div>
-            </div>
-            <div id="specialMessage" class="special-message">윤은솔 예쁜이</div>
+      <div class="center-wrapper">
+        <div class="date-text" id="dateDisplay">16일 (월)</div>
+        <div
+          class="clock-time"
+          id="timeDisplay"
+          onclick="toggleTimeFormat()"
+          style="cursor: pointer"
+        >
+          10<span class="blink"></span>30<span class="blink"></span
+          ><span style="font-variant-numeric: tabular-nums">00</span>
         </div>
+        <div>
+          <div class="aqi-text" id="aqiDisplay"></div>
+          <div class="aqi-text" id="tomorrowAqiDisplay"></div>
+        </div>
+        <div id="specialMessage" class="special-message">윤은솔 예쁜이</div>
+      </div>
     </div>
 
     <script>
-        // ES5 문법 사용 (구버전 호환)
-        function updateClock() {
-            var now = new Date();
-            
-            // 시간 추출
-            var hours = now.getHours();
-            var minutes = now.getMinutes();
-            var seconds = now.getSeconds();
+      // ES5 문법 사용 (구버전 호환)
+      // 12시간제 토글 상태 변수
+      var is12Hour = true;
 
-            // 매 초마다 색상 변경 (밝은 색 계열)
-            var colors = ['#FF80AB', '#EA80FC', '#8C9EFF', '#80D8FF', '#A7FFEB', '#CCFF90', '#FFFF8D', '#FFD180'];
-            document.getElementById('timeDisplay').style.color = colors[seconds % colors.length];
-            
-            // 2자리 숫자로 맞추기 (예: 9 -> 09)
-            hours = hours < 10 ? '0' + hours : hours;
-            minutes = minutes < 10 ? '0' + minutes : minutes;
-            var strSeconds = seconds < 10 ? '0' + seconds : seconds;
-            
-            // 시간 표시 업데이트
-            var timeString = hours + '<span class="blink">:</span>' + minutes;
-            document.getElementById('timeDisplay').innerHTML = timeString;
+      function toggleTimeFormat() {
+        is12Hour = !is12Hour;
+        updateClock(); // 즉시 업데이트 반영
+      }
 
-            // 날짜 추출
-            var date = now.getDate();
-            var dayIndex = now.getDay();
-            var dayNames = ['일', '월', '화', '수', '목', '금', '토'];
-            var dayName = dayNames[dayIndex];
+      function updateClock() {
+        var now = new Date();
 
-            // 날짜 표시 업데이트
-            // 색상 강조를 위해 괄호 안 요일은 별도 스타일링 가능하나 이미지대로 흰색 유지
-            var dateString = date + '일 (' + dayName + ')';
-            document.getElementById('dateDisplay').innerHTML = dateString;
-            
-            // 초 표시 업데이트
-            document.getElementById('secondsDisplay').innerHTML = strSeconds + '';
+        // 시간 추출
+        var hours = now.getHours();
 
-            // 매시 30분 0초 ~ 29초 동안 메시지 표시
-            var messageDiv = document.getElementById('specialMessage');
-            if (minutes % 10 === 0) {
-                messageDiv.style.display = 'block';
-            } else {
-                messageDiv.style.display = 'none';
-            }
+        // 12시간제 적용 여부 체크
+        if (is12Hour) {
+          hours = hours % 12;
+          if (hours === 0) {
+            hours = 12; // 0시는 12시로 표시 (예: 밤 12시 = 12)
+          }
         }
+        var minutes = now.getMinutes();
+        var seconds = now.getSeconds();
 
-        function updateAQI() {
-            var token = 'c1611aa54ac7de2320cc3105b7b42a0ba2b26447';
-            // 'here'는 IP 기반으로 현재 위치를 자동으로 찾습니다.
-            var url = 'https://api.waqi.info/feed/here/?token=' + token;
+        // 매 초마다 색상 변경 (밝은 색 계열)
+        var colors = [
+          "#FF80AB",
+          "#EA80FC",
+          "#8C9EFF",
+          "#80D8FF",
+          "#A7FFEB",
+          "#CCFF90",
+          "#FFFF8D",
+          "#FFD180",
+        ];
+        document.getElementById("timeDisplay").style.color =
+          colors[seconds % colors.length];
 
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, true);
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    try {
-                        var response = JSON.parse(xhr.responseText);
-                        if (response.status === 'ok') {
-                            var aqi = response.data.aqi;
-                            var statusText = '좋음';
-                            if (aqi > 50) statusText = '보통';
-                            if (aqi > 100) statusText = '나쁨';
-                            if (aqi > 150) statusText = '매우나쁨';
-                            
-                            document.getElementById('aqiDisplay').innerHTML = 'PM 2.5: ' + aqi + ' (' + statusText + ')';
+        // 2자리 숫자로 맞추기 (예: 9 -> 09)
+        hours = hours < 10 ? "0" + hours : hours;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        var strSeconds = seconds < 10 ? "0" + seconds : seconds;
 
-                            // 오늘 예보 (최저/최고) 가져오기
-                            if (response.data.forecast && response.data.forecast.daily && response.data.forecast.daily.pm25) {
-                                var forecasts = response.data.forecast.daily.pm25;
-                                var now = new Date();
-                                var year = now.getFullYear();
-                                var month = now.getMonth() + 1;
-                                var day = now.getDate();
-                                if (month < 10) month = '0' + month;
-                                if (day < 10) day = '0' + day;
-                                var todayStr = year + '-' + month + '-' + day;
+        // 시간 표시 업데이트
+        var timeString =
+          hours +
+          '<span class="blink"></span>' +
+          minutes +
+          '<span class="blink"></span>' +
+          '<span style="font-variant-numeric: tabular-nums;">' +
+          strSeconds +
+          "</span>";
+        document.getElementById("timeDisplay").innerHTML = timeString;
 
-                                var tomorrow = new Date(now);
-                                tomorrow.setDate(tomorrow.getDate() + 1);
-                                var tYear = tomorrow.getFullYear();
-                                var tMonth = tomorrow.getMonth() + 1;
-                                var tDay = tomorrow.getDate();
-                                if (tMonth < 10) tMonth = '0' + tMonth;
-                                if (tDay < 10) tDay = '0' + tDay;
-                                var tomorrowStr = tYear + '-' + tMonth + '-' + tDay;
+        // 날짜 추출
+        var date = now.getDate();
+        date = date < 10 ? "0" + date : date;
+        var month = now.getMonth() + 1;
+        month = month < 10 ? "0" + month : month;
+        var dayIndex = now.getDay();
+        // 요일에 맞는 아이콘으로 변경
+        // var dayNames = ["☀️", "🌙", "🔥", "💧", "🌲", "🧈", "🪨"];
+        // var dayNames = ["☀️", "🌙", "⚔️", "🐪", "⚡", "❤️", "🪐"];
+        var dayNames = ["☀️", "🌙", "🔥⚔️", "💧🐪🌩️", "🌲⚡", "🧈❤️", "🪐"];
+        var dayName = dayNames[dayIndex];
 
-                                for (var i = 0; i < forecasts.length; i++) {
-                                    if (forecasts[i].day === todayStr) {
-                                        document.getElementById('forecastDisplay').innerHTML = '오늘: 최저 [' + forecasts[i].min + '] 최고 [' + forecasts[i].max + ']';
-                                    }
-                                    if (forecasts[i].day === tomorrowStr) {
-                                        document.getElementById('forecastTomorrowDisplay').innerHTML = '내일: 최저 [' + forecasts[i].min + '] 최고 [' + forecasts[i].max + ']';
-                                    }
-                                }
-                            }
-                        }
-                    } catch (e) {
-                        console.log('AQI Error');
+        // 날짜 표시 업데이트
+        // 색상 강조를 위해 괄호 안 요일은 별도 스타일링 가능하나 이미지대로 흰색 유지
+        var dateString =
+          now.getFullYear() + "  " + month + "  " + date + "  " + dayName;
+        document.getElementById("dateDisplay").innerHTML = dateString;
+
+        // 매시 30분 0초 ~ 29초 동안 메시지 표시
+        var messageDiv = document.getElementById("specialMessage");
+        if (minutes % 10 === 0) {
+          messageDiv.style.display = "block";
+          if (strSeconds === "00") {
+            updateAQI();
+          }
+        } else {
+          messageDiv.style.display = "none";
+        }
+      }
+
+      function updateAQI() {
+        var token = "c1611aa54ac7de2320cc3105b7b42a0ba2b26447";
+        // 'here'는 IP 기반으로 현재 위치를 자동으로 찾습니다.
+        var url = "https://api.waqi.info/feed/here/?token=" + token;
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url, true);
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === 4 && xhr.status === 200) {
+            try {
+              var response = JSON.parse(xhr.responseText);
+              if (response.status === "ok") {
+                var aqi = response.data.aqi;
+                var statusText = "😄";
+                if (aqi > 40) statusText = "😷";
+                if (aqi > 80) statusText = "🤢";
+                if (aqi > 100) statusText = "👿";
+
+                document.getElementById("aqiDisplay").innerHTML =
+                  "💨 " + aqi + " " + statusText;
+
+                // 오늘 예보 (최저/최고) 가져오기
+                if (
+                  response.data.forecast &&
+                  response.data.forecast.daily &&
+                  response.data.forecast.daily.pm25
+                ) {
+                  var forecasts = response.data.forecast.daily.pm25;
+                  var now = new Date();
+                  var year = now.getFullYear();
+                  var month = now.getMonth() + 1;
+                  var day = now.getDate();
+                  if (month < 10) month = "0" + month;
+                  if (day < 10) day = "0" + day;
+                  var todayStr = year + "-" + month + "-" + day;
+
+                  var tomorrow = new Date(now);
+                  tomorrow.setDate(tomorrow.getDate() + 1);
+                  var tYear = tomorrow.getFullYear();
+                  var tMonth = tomorrow.getMonth() + 1;
+                  var tDay = tomorrow.getDate();
+                  if (tMonth < 10) tMonth = "0" + tMonth;
+                  if (tDay < 10) tDay = "0" + tDay;
+                  var tomorrowStr = tYear + "-" + tMonth + "-" + tDay;
+
+                  for (var i = 0; i < forecasts.length; i++) {
+                    if (forecasts[i].day === todayStr) {
+                      document.getElementById("aqiDisplay").innerHTML =
+                        "💨 " +
+                        aqi +
+                        " / " +
+                        forecasts[i].max +
+                        " " +
+                        statusText;
                     }
-                }
-            };
-            xhr.send();
-        }
+                    if (forecasts[i].day === tomorrowStr) {
+                      var tomorrowAQI = forecasts[i].max;
+                      var tomorrowStatusText = "😄";
+                      if (tomorrowAQI > 40) tomorrowStatusText = "😷";
+                      if (tomorrowAQI > 80) tomorrowStatusText = "🤢";
+                      if (tomorrowAQI > 100) tomorrowStatusText = "👿";
 
-        // 1초마다 실행
-        setInterval(updateClock, 1000);
-        
-        // 페이지 로드 시 즉시 실행
-        updateClock();
-        updateAQI();
-        // 30분마다 미세먼지 정보 갱신
-        setInterval(updateAQI, 1800000);
+                      document.getElementById("tomorrowAqiDisplay").innerHTML =
+                        "⏭️ 💨 / " + tomorrowAQI + " " + tomorrowStatusText;
+                    }
+                  }
+                }
+              }
+            } catch (e) {
+              console.log("AQI Error");
+            }
+          }
+        };
+        xhr.send();
+      }
+
+      // 1초마다 실행
+      setInterval(updateClock, 1000);
+
+      // 페이지 로드 시 즉시 실행
+      updateClock();
+      updateAQI();
+      // 30분마다 미세먼지 정보 갱신
+      //   setInterval(updateAQI, 1800000);
     </script>
-</body>
+  </body>
 </html>
